@@ -28,8 +28,10 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 	String kickMessage;
 	String notifyMessage;
 	String command;
+	String censorMessage;
 	boolean enabled;
 	boolean censorIP;
+	boolean censorKnownServers;
 	
 	static boolean debug;
 	
@@ -93,8 +95,10 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 		notifyOnAdvert = conf.getBoolean("action.notify.do", true);
 		notifyMessage = conf.getString("action.notify.message", "&e%NAME% adverted to %ADDRESS% - %INFO%");
 		commandOnAdvert = conf.getBoolean("action.command.do", false);
-		command = conf.getString("action.command.command", "kick %NAME%");
-		censorIP = conf.getBoolean("action.censorIP", true);
+		command = conf.getString("action.command.command", "kick %NAME% Advertising for %SERVER%");
+		censorIP = conf.getBoolean("action.censor.IP", true);
+		censorKnownServers = conf.getBoolean("action.censor.KnownServers", true);
+		censorMessage = conf.getString("action.censor.message", "&cYou're not allowed to do server advertising!");
 		chatCommands = conf.getStringList("chat.commands");
 		
 		if (chatCommands == null)
@@ -136,7 +140,9 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 		conf.set("action.notify.message", notifyMessage);
 		conf.set("action.command.do", commandOnAdvert);
 		conf.set("action.command.command", command);
-		conf.set("action.censorIP", censorIP);
+		conf.set("action.censor.IP", censorIP);
+		conf.set("action.censor.KnownServers", censorKnownServers);
+		conf.set("action.censor.message", censorMessage);
 		
 		whitelistAddr = new LinkedList<String>();
 		for (MCServer server : whitelist)
@@ -154,7 +160,8 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent e)
 	{
-		checkChat(e.getPlayer(), e.getMessage().toLowerCase());
+		if (!checkChat(e.getPlayer(), e.getMessage().toLowerCase()))
+			e.setCancelled(true);
 		if (censorIP && enabled)
 			e.setMessage(ipPattern.matcher(e.getMessage()).replaceAll("*.*.*.*"));
 	}
@@ -166,17 +173,18 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 		{
 			if ((e.getMessage().toLowerCase() + " ").startsWith(s.toLowerCase() + " "))
 			{
-				checkChat(e.getPlayer(), e.getMessage().toLowerCase());
+				if (!checkChat(e.getPlayer(), e.getMessage().toLowerCase()))
+					e.setCancelled(true);
 				return;
 			}
 		}
 	}
 
-	private void checkChat(Player player, String message) {
+	private boolean checkChat(Player player, String message) {
 		if (enabled)
 		{
 			if (player.hasPermission("AntiAdvertising.ignore"))
-				return;
+				return true;
 			List<String> matches = new LinkedList<String>();
 			
 			Matcher m = ipPattern.matcher(message);
@@ -213,7 +221,12 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 									ChatHelper.log(addr + " is listed mc server");
 								s.mentionedBy = player.getName();
 								doActions(s);
-								return;
+								if (censorKnownServers)
+								{
+									ChatHelper.sendMessage(player, censorMessage);
+									return false;
+								}
+								return true;
 							}
 						}
 						
@@ -243,6 +256,7 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 				}
 			}
 		}
+		return true;
 	}
 	
 	private void doActions(MCServer server)
@@ -264,7 +278,7 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 		if (commandOnAdvert)
 		{
 			try {
-				getServer().dispatchCommand(getServer().getConsoleSender(), command.replace("%NAME%", server.mentionedBy));
+				getServer().dispatchCommand(getServer().getConsoleSender(), command.replace("%NAME%", server.mentionedBy).replace("%SERVER%", server.address));
 			} catch (CommandException e) {
 				ChatHelper.log.severe(ChatHelper.prefix + "Command exception - You should check your config.yml for \"command\": " + e.getMessage());
 			}
