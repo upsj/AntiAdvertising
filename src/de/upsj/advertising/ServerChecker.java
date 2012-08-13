@@ -20,10 +20,12 @@ public class ServerChecker extends Thread {
 		{
 			if (toCheck.isEmpty())
 			{
-				try {
-					sleep(100);
-				} catch (InterruptedException e) {
-					break;
+				synchronized (toCheck) {
+					try {
+						toCheck.wait();
+					} catch (InterruptedException e) {
+						break;
+					}
 				}
 			}
 			

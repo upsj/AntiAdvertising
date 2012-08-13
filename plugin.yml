@@ -1,7 +1,7 @@
 name: AntiAdvertising
 main: de.upsj.advertising.AntiAdvertisingPlugin
 description: Kicking server advertisers
-version: 1.2
+version: 1.3
 author: upsj
 commands:
   AntiAdvertReload:
