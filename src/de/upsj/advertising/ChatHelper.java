@@ -2,6 +2,7 @@ package de.upsj.advertising;
 
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 
@@ -15,7 +16,7 @@ public class ChatHelper {
 	}
 
 	public static String replaceColorCodes(String message) {
-		return message.replaceAll("(&([a-f0-9]))", "§$2");		
+		return message.replaceAll("(&([a-f0-9]))", ChatColor.COLOR_CHAR + "$2");
 	}
 
 	public static String removeColorCodes(String message) {
@@ -24,6 +25,10 @@ public class ChatHelper {
 
 	public static void log(String message) {
 		log.info(prefix + message);
+	}
+	
+	public static void warn(String message) {
+		log.warning(prefix + message);
 	}
 
 	public static void broadcastMessage(String message) {
