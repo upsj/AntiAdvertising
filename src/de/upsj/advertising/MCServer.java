@@ -31,7 +31,7 @@ public class MCServer {
 		return false;
 	}
 	
-	public static MCServer fromAddress(String domainString) throws UnknownHostException
+	public static MCServer fromAddress(String domainString)
 	{
 		MCServer s = new MCServer();
 		String[] parts = domainString.split(":");
@@ -43,7 +43,15 @@ public class MCServer {
 		{
 			s.port = Integer.parseInt(parts[1]);
 		}
-		s.addrObj = InetAddress.getByName(parts[0]);
+		try {
+			s.addrObj = InetAddress.getByName(parts[0]);
+		} catch (UnknownHostException e) {
+			if (AntiAdvertisingPlugin.debug)
+				ChatHelper.log("Unresolved hostname: " + parts[0]);
+			try {
+				s.addrObj = InetAddress.getByAddress(new byte[] { 0, 0, 0, 0 });
+			} catch (UnknownHostException e1) { }
+		}
 		s.address = domainString;
 		s.found = false;
 		

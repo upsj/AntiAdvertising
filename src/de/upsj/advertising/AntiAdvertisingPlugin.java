@@ -1,6 +1,5 @@
 package de.upsj.advertising;
 
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -128,24 +127,19 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 			chatCommands.add("/tell");
 		}
 		
-		List<String> whitelistAddr = conf.getStringList("whitelist");
-		
-		if (whitelistAddr == null) {
-			whitelistAddr = new LinkedList<String>();
-			whitelistAddr.add("localhost");
+		List<String> whitelistAddr;
+		if (conf.isList("whitelist")) {
+			whitelistAddr = conf.getStringList("whitelist");
 		} else {
-			if (!whitelistAddr.contains("localhost")) {
-				whitelistAddr.add("localhost");
-			}
+			whitelistAddr = new LinkedList<String>();
+			whitelistAddr.add("enter.server.name.here");
 		}
+		
+		whitelist.clear();
 		
 		synchronized (whitelist) {
 			for (String line : whitelistAddr) {
-				try {
-					whitelist.add(MCServer.fromAddress(line));
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
+				whitelist.add(MCServer.fromAddress(line));
 			}
 		}
 		
@@ -216,61 +210,56 @@ public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runna
 			for (String addr : matches) {
 				if (debug)
 					ChatHelper.log("Found possible address: " + addr);
-				try {
-					MCServer server = MCServer.fromAddress(addr);
-					if (server.addrObj.getAddress()[0] == 127) {
-						if (debug)
-							ChatHelper.log("Server " + addr + " is localhost");
-						continue;
-					}
-					
-					boolean whitelisted;
-					synchronized (whitelist) {
-						whitelisted = whitelist.contains(server);						
-					}
-					
-					if (!whitelisted) {
-						synchronized (servers) {
-							for (MCServer s : servers) {
-								if (s.equals(server)) {
-									if (debug)
-										ChatHelper.log(addr + " is listed mc server");
-									s.mentionedBy = player.getName();
-									doActions(s);
-									
-									if (censorKnownServers) {
-										ChatHelper.sendMessage(player, censorMessage);
-										return false;
-									}
-									return true;
-								}
-							}
-						}
-						
-						synchronized (noServers) {
-							for (MCServer s : noServers) {
-								if (s.equals(server)) {
-									if (debug)
-										ChatHelper.log(addr + " is listed as non-mc server");
-									continue;
-								}
-							}
-						}
-						
-						if (debug)
-							ChatHelper.log("Pinging server " + addr);
-						server.mentionedBy = player.getName();
-						toCheck.add(server);
-						synchronized(toCheck) {
-							toCheck.notify();
-						}
-					} else {
-						if (debug)
-							ChatHelper.log("Server " + addr + " is whitelisted");
-					}
-				} catch (UnknownHostException e1) {
+				MCServer server = MCServer.fromAddress(addr);
+				if (server.addrObj.getAddress()[0] == 127) {
 					if (debug)
-						ChatHelper.log("Unresolved Hostname: " + addr);
+						ChatHelper.log("Server " + addr + " is localhost");
+					continue;
+				}
+				
+				boolean whitelisted;
+				synchronized (whitelist) {
+					whitelisted = whitelist.contains(server);						
+				}
+				
+				if (!whitelisted) {
+					synchronized (servers) {
+						for (MCServer s : servers) {
+							if (s.equals(server)) {
+								if (debug)
+									ChatHelper.log(addr + " is listed mc server");
+								s.mentionedBy = player.getName();
+								doActions(s);
+								
+								if (censorKnownServers) {
+									ChatHelper.sendMessage(player, censorMessage);
+									return false;
+								}
+								return true;
+							}
+						}
+					}
+					
+					synchronized (noServers) {
+						for (MCServer s : noServers) {
+							if (s.equals(server)) {
+								if (debug)
+									ChatHelper.log(addr + " is listed as non-mc server");
+								continue;
+							}
+						}
+					}
+					
+					if (debug)
+						ChatHelper.log("Pinging server " + addr);
+					server.mentionedBy = player.getName();
+					toCheck.add(server);
+					synchronized(toCheck) {
+						toCheck.notify();
+					}
+				} else {
+					if (debug)
+						ChatHelper.log("Server " + addr + " is whitelisted");
 				}
 			}
 		}
