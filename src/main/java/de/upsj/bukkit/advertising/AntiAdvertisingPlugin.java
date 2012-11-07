@@ -1,4 +1,4 @@
-package de.upsj.advertising;
+package de.upsj.bukkit.advertising;
 
 import java.util.Collections;
 import java.util.HashMap;

@@ -1,5 +1,5 @@
 name: AntiAdvertising
-main: de.upsj.advertising.AntiAdvertisingPlugin
+main: de.upsj.bukkit.advertising.AntiAdvertisingPlugin
 description: Kicking server advertisers
 version: 1.3
 author: upsj
