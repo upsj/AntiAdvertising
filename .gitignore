@@ -4,3 +4,8 @@
 .project
 .classpath
 .settings/*
+.idea/*
+*.iml
+/target
+/bin
+.checkstyle

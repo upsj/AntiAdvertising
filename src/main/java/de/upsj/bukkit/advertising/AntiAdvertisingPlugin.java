@@ -1,338 +1,149 @@
 package de.upsj.bukkit.advertising;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
+import de.upsj.bukkit.advertising.commands.PingCommand;
+import de.upsj.bukkit.advertising.commands.ReloadCommand;
+import de.upsj.bukkit.advertising.servers.PotentialServer;
+import de.upsj.bukkit.annotations.ConfigVar;
+import de.upsj.bukkit.annotations.ConfigVarType;
+import de.upsj.bukkit.annotations.Plugin;
+import de.upsj.bukkit.annotations.ConfigSection;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
-public class AntiAdvertisingPlugin extends JavaPlugin implements Listener, Runnable {
-	boolean checkDomains;
-	boolean kickOnAdvert;
-	boolean broadcastOnAdvert;
-	boolean notifyOnAdvert;
-	boolean commandOnAdvert;
-	int kickAttempts;
-	int commandAttempts;
-	String broadcastMessage;
-	String kickMessage;
-	String notifyMessage;
-	String command;
-	String censorMessage;
-	boolean enabled;
-	boolean censorIP;
-	boolean censorKnownServers;
-	
-	boolean countAttempts;
-	
-	Map<String, Integer> attemptsList;
-	
-	static boolean debug;
-	
-	Pattern ipPattern;
-	Pattern domainPattern;
-	Thread checkerThread;
-	
-	ConcurrentLinkedQueue<MCServer> toCheck;
-	ConcurrentLinkedQueue<MCServer> checked;
-	List<MCServer> servers;
-	List<MCServer> noServers;
-	List<MCServer> whitelist;
-	
-	List<String> chatCommands;
-	
-	@Override
-	public void onEnable() {
-		getServer().getPluginManager().registerEvents(this, this);
-		new ChatHelper(getServer());
-		toCheck = new ConcurrentLinkedQueue<MCServer>();
-		checked = new ConcurrentLinkedQueue<MCServer>();
-		servers = Collections.synchronizedList(new LinkedList<MCServer>());
-		noServers = Collections.synchronizedList(new LinkedList<MCServer>());
-		whitelist = Collections.synchronizedList(new LinkedList<MCServer>());
-		
-		attemptsList = Collections.synchronizedMap(new HashMap<String, Integer>());
-		
-		ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(:\\d*)?");
-		domainPattern = Pattern.compile("([0-9a-z_\\-]{2,}\\.)+[a-z]{2,}(:\\d*)?");
-		
-		reload();
-		
-		if (enabled) {
-			checkerThread = new ServerChecker(toCheck, checked);
-			checkerThread.start();
-		}
-		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 1, 1);
-	}
-	
-	@Override
-	public void onDisable()
-	{
-		if (enabled) {
-			checkerThread.interrupt();
-		}
-	}
+import java.util.Iterator;
+import java.util.List;
 
-	public void reload()
-	{
-		reloadConfig();
-		FileConfiguration conf = getConfig();
-		
-		enabled = conf.getBoolean("enabled", true);
-		debug = conf.getBoolean("debug", false);
-		kickOnAdvert = conf.getBoolean("action.kick.do", true);
-		kickAttempts = conf.getInt("action.kick.attempts", 1);
-		kickMessage = conf.getString("action.kick.message", "You have been kicked because of server advertising.");
-		broadcastOnAdvert = conf.getBoolean("action.broadcast.do", true);
-		broadcastMessage = conf.getString("action.broadcast.message", "&e%NAME% has been kicked because of server advertising.");
-		notifyOnAdvert = conf.getBoolean("action.notify.do", true);
-		notifyMessage = conf.getString("action.notify.message", "&e%NAME% adverted to %ADDRESS% - %INFO%");
-		commandOnAdvert = conf.getBoolean("action.command.do", false);
-		commandAttempts = conf.getInt("action.command.attempts", 1);
-		command = conf.getString("action.command.command", "kick %NAME% Advertising for %SERVER%");
-		censorIP = conf.getBoolean("action.censor.IP", true);
-		censorKnownServers = conf.getBoolean("action.censor.KnownServers", true);
-		censorMessage = conf.getString("action.censor.message", "&cYou're not allowed to do server advertising!");
-		chatCommands = conf.getStringList("chat.commands");
-		
-		if (kickAttempts < 1) {
-			ChatHelper.warn("Configuration warning: kick attempt count < 1 - will be set to 1");
-			kickAttempts = 1;
-		}
-		
-		if (commandAttempts < 1) {
-			ChatHelper.warn("Configuration warning: command attempt count < 1 - will be set to 1");
-			commandAttempts = 1;
-		}
-		
-		countAttempts = !(commandAttempts == kickAttempts && kickAttempts == 1);
-		
-		if (chatCommands == null) {
-			chatCommands = new LinkedList<String>();
-			chatCommands.add("/tell");
-		}
-		
-		List<String> whitelistAddr;
-		if (conf.isList("whitelist")) {
-			whitelistAddr = conf.getStringList("whitelist");
-		} else {
-			whitelistAddr = new LinkedList<String>();
-			whitelistAddr.add("enter.server.name.here");
-		}
-		
-		whitelist.clear();
-		
-		synchronized (whitelist) {
-			for (String line : whitelistAddr) {
-				whitelist.add(MCServer.fromAddress(line));
-			}
-		}
-		
-		conf.set("enabled", enabled);
-		conf.set("action.kick.do", kickOnAdvert);
-		conf.set("action.kick.attempts", kickAttempts);
-		conf.set("action.kick.message", kickMessage);
-		conf.set("action.broadcast.do", broadcastOnAdvert);
-		conf.set("action.broadcast.message", broadcastMessage);
-		conf.set("action.notify.do", notifyOnAdvert);
-		conf.set("action.notify.message", notifyMessage);
-		conf.set("action.command.do", commandOnAdvert);
-		conf.set("action.command.attempts", commandAttempts);
-		conf.set("action.command.command", command);
-		conf.set("action.censor.IP", censorIP);
-		conf.set("action.censor.KnownServers", censorKnownServers);
-		conf.set("action.censor.message", censorMessage);
-		
-		whitelistAddr = new LinkedList<String>();
-		synchronized (whitelist) {
-			for (MCServer server : whitelist) {
-				whitelistAddr.add(server.address);
-			}
-		}
-		
-		conf.set("whitelist", whitelistAddr);
-		
-		conf.set("chat.commands", chatCommands);
-		
-		saveConfig();
-	}
-	
-	@EventHandler
-	public void onPlayerChat(AsyncPlayerChatEvent e) {
-		if (!checkChat(e.getPlayer(), e.getMessage().toLowerCase()))
-			e.setCancelled(true);
-		if (censorIP && enabled)
-			e.setMessage(ipPattern.matcher(e.getMessage()).replaceAll("*.*.*.*"));
-	}
-	
-	@EventHandler
-	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent e) {
-		for (String s : chatCommands) {
-			if ((e.getMessage().toLowerCase() + " ").startsWith(s.toLowerCase() + " ")) {
-				if (!checkChat(e.getPlayer(), e.getMessage().toLowerCase()))
-					e.setCancelled(true);
-				return;
-			}
-		}
-	}
+/**
+ * AntiAdvertising plugin implementation.
+ * @author upsj
+ * @version 2.0
+ */
+@Plugin(name = "AntiAdvertising",
+        description = "Kicking server advertisers",
+        version = "2.0", author = "upsj")
+@ConfigSection(name = "",
+               description = "AntiAdvertising configuration",
+               values = {
+                   @ConfigVar(name = AntiAdvertisingPlugin.CONF_ENABLED, type = ConfigVarType.BOOLEAN,
+                              description = "Set this to false to disable checking the chat for server advertisement. "
+                                          + "Servers can still be pinged manually using the /serverping command."),
+                   @ConfigVar(name = AntiAdvertisingPlugin.CONF_DEBUG, type = ConfigVarType.BOOLEAN,
+                              description = "Set this to true to enable the debug mode. "
+                                          + "This will produce a more detailed server log output."),
+                   @ConfigVar(name = AntiAdvertisingPlugin.CONF_WHITELIST, type = ConfigVarType.STRING_LIST,
+                             description = "The list of servers allowed to be mentioned in the chat."
+                                         + "Format: server-address or server-address:port")
+               }
+)
+public class AntiAdvertisingPlugin extends JavaPlugin {
+    /** Config value for the enabled status. */
+    public static final String CONF_ENABLED = "enabled";
+    /** Config value for the debug mode. */
+    public static final String CONF_DEBUG   = "debug";
+    /** Config section for the actions. */
+    public static final String CONF_ACTIONS = "actions";
+    /** Config section for network. */
+    public static final String CONF_NETWORK = "network";
+    /** Config section for ChatListener. */
+    public static final String CONF_CHAT    = "chat";
+    /** Config section for whitelist. */
+    public static final String CONF_WHITELIST = "whitelist";
 
-	private boolean checkChat(Player player, String message) {
-		if (enabled) {
-			if (player.hasPermission("AntiAdvertising.ignore"))
-				return true;
-			List<String> matches = new LinkedList<String>();
-			
-			Matcher m = ipPattern.matcher(message);
-			while(m.find()) {
-				matches.add(m.group());
-			}
-			
-			m = domainPattern.matcher(message);
-			while(m.find()) {
-				matches.add(m.group());
-			}
-			
-			for (String addr : matches) {
-				if (debug)
-					ChatHelper.log("Found possible address: " + addr);
-				MCServer server = MCServer.fromAddress(addr);
-				if (server.addrObj.getAddress()[0] == 127) {
-					if (debug)
-						ChatHelper.log("Server " + addr + " is localhost");
-					continue;
-				}
-				
-				boolean whitelisted;
-				synchronized (whitelist) {
-					whitelisted = whitelist.contains(server);						
-				}
-				
-				if (!whitelisted) {
-					synchronized (servers) {
-						for (MCServer s : servers) {
-							if (s.equals(server)) {
-								if (debug)
-									ChatHelper.log(addr + " is listed mc server");
-								s.mentionedBy = player.getName();
-								doActions(s);
-								
-								if (censorKnownServers) {
-									ChatHelper.sendMessage(player, censorMessage);
-									return false;
-								}
-								return true;
-							}
-						}
-					}
-					
-					synchronized (noServers) {
-						for (MCServer s : noServers) {
-							if (s.equals(server)) {
-								if (debug)
-									ChatHelper.log(addr + " is listed as non-mc server");
-								continue;
-							}
-						}
-					}
-					
-					if (debug)
-						ChatHelper.log("Pinging server " + addr);
-					server.mentionedBy = player.getName();
-					toCheck.add(server);
-					synchronized(toCheck) {
-						toCheck.notify();
-					}
-				} else {
-					if (debug)
-						ChatHelper.log("Server " + addr + " is whitelisted");
-				}
-			}
-		}
-		return true;
-	}
-	
-	private void doActions(MCServer server) {		
-		Integer attempts;
-		if (countAttempts) {
-			synchronized (attemptsList) {
-				attempts = attemptsList.get(server.mentionedBy);
-				if (attempts == null)
-					attempts = 0;
-				attempts++;
-				attemptsList.put(server.mentionedBy, attempts);
-			}
-		} else {
-			attempts = 1;
-		}
-		
-		if (broadcastOnAdvert) {
-			ChatHelper.broadcastMessage(broadcastMessage.replace("%NAME%", server.mentionedBy));
-		}
-		
-		if (notifyOnAdvert) {
-			String message = notifyMessage.replace("%NAME%", server.mentionedBy).replace("%ADDRESS%", server.address).replace("%INFO%", server.getInfo());
-			for (Player p : getServer().getOnlinePlayers()) {
-				if (p.hasPermission("AntiAdvertising.notify"))
-					ChatHelper.sendMessage(p, message);
-			}
-			ChatHelper.log(ChatHelper.removeColorCodes(message));
-		}
-		
-		if (commandOnAdvert && attempts >= commandAttempts) {
-			try {
-				getServer().dispatchCommand(getServer().getConsoleSender(), command.replace("%NAME%", server.mentionedBy).replace("%SERVER%", server.address));
-			} catch (CommandException e) {
-				ChatHelper.log.severe(ChatHelper.prefix + "Command exception - You should check your config.yml for \"command\": " + e.getMessage());
-			}
-		}
-		
-		if (kickOnAdvert && attempts >= kickAttempts) {
-			Player p = getServer().getPlayerExact(server.mentionedBy);
-			if (p != null) {
-				p.kickPlayer(kickMessage);
-			}
-		}
-	}
+    /** The server checker. */
+    private ServerChecker serverChecker;
+    /** The action handler. */
+    private ActionHandler handler;
+    /** The chat listener. */
+    private ChatListener listener;
 
-	@Override
-	public void run() {
-		MCServer finished;
-		while ((finished = checked.poll()) != null) {
-			if (finished.found) {
-				synchronized (servers) {
-					servers.add(finished);
-				}
-				doActions(finished);
-			} else {
-				synchronized (noServers) {
-					noServers.add(finished);
-				}
-			}
-		}
-	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (command.getName().equalsIgnoreCase("AntiAdvertReload")) {
-			reload();
-			ChatHelper.sendMessage(sender, "&eAntiAdvertReload finished");
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public void onEnable() {
+        Log.init(getLogger(), isDebugMode());
+        serverChecker = new ServerChecker();
+        handler = new ActionHandler(getServer());
+        listener = new ChatListener(serverChecker, handler);
+        // Save possibly missing default values
+        reload();
+
+        // Register listeners, tasks
+        getServer().getPluginManager().registerEvents(listener, this);
+        BukkitScheduler scheduler = getServer().getScheduler();
+        scheduler.scheduleSyncRepeatingTask(this, serverChecker, 1, 1);
+        scheduler.scheduleSyncRepeatingTask(this, handler, 1, 1);
+
+        // Register commands
+        getCommand(ReloadCommand.NAME).setExecutor(new ReloadCommand(this));
+        getCommand(PingCommand.NAME).setExecutor(new PingCommand(serverChecker, getServer()));
+    }
+
+    /** Reloads config values, adds possibly missing default values. */
+    public void reload() {
+        Log.log("(Re-)loading config...");
+        reloadConfig();
+        Log.setDebugMode(isDebugMode());
+        listener.setEnabled(isCheckEnabled());
+        serverChecker.reloadConfig(getSection(CONF_NETWORK));
+        handler.reloadConfig(getSection(CONF_ACTIONS));
+        listener.reloadConfig(getSection(CONF_CHAT));
+        serverChecker.clear();
+        loadWhiteList();
+        saveConfig();
+        Log.log("(Re-)loading config finished");
+    }
+
+    /**
+     * Returns the configuration section at the given path.
+     * If it doesn't exists, it is created.
+     * @param path The path.
+     * @return The configuration section at the given path.
+     */
+    private ConfigurationSection getSection(String path) {
+        FileConfiguration conf = getConfig();
+        if (conf.isConfigurationSection(path)) {
+            return conf.getConfigurationSection(path);
+        }
+        return conf.createSection(path);
+    }
+
+    /** @return true iff the plugin is checking the chat. */
+    private boolean isCheckEnabled() {
+        FileConfiguration conf = getConfig();
+        boolean enabled = conf.getBoolean(CONF_ENABLED, true);
+        conf.set(CONF_ENABLED, enabled);
+        return enabled;
+    }
+
+    /** @return true iff the plugin is in debug mode. */
+    private boolean isDebugMode() {
+        return getConfig().getBoolean(CONF_DEBUG, false);
+    }
+
+    /** Loads the white list. */
+    private void loadWhiteList() {
+        // FIXME possible issue: server adverted short before the whitelist is reloaded.
+        List<String> whitelist = getConfig().getStringList(CONF_WHITELIST);
+        Iterator<String> it = whitelist.iterator();
+        String serverName;
+        PotentialServer server;
+        while (it.hasNext()) {
+            serverName = it.next();
+            server = ChatMessage.parseSingleServer(serverName, true);
+            if (server == null) {
+                it.remove();
+                Log.warn("Couldn't parse whitelisted server " + serverName);
+            } else {
+                serverChecker.add(server, null);
+            }
+        }
+        getConfig().set(CONF_WHITELIST, whitelist);
+    }
+
+    @Override
+    public void onDisable() {
+        serverChecker.shutdown();
+        serverChecker = null;
+        getServer().getScheduler().cancelTasks(this);
+    }
 }

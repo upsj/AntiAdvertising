@@ -18,13 +18,86 @@
     <defaultGoal>install</defaultGoal>
     <directory>${basedir}/target</directory>
     <finalName>${project.artifactId}-${project.version}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+        <executions>
+          <!-- Compile annotations + processor -->
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <compilerArgument>-proc:none</compilerArgument>
+              <includes>
+                <include>de/upsj/bukkit/annotations/**</include>
+              </includes>
+            </configuration>
+          </execution>
+          <!-- Compile plugin, execute processor -->
+          <execution>
+            <id>full-compile</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <annotationProcessors>
+                <annotationProcessor>de.upsj.bukkit.annotations.AnnotationParser</annotationProcessor>
+              </annotationProcessors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Exclude annotation files from jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <excludes>
+            <exclude>de/upsj/bukkit/annotations</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <!-- Copy resources after plugin.yml generation -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <!-- Only include generated plugin.yml -->
+              <resources>
+                <resource>
+                  <directory>target</directory>
+                  <includes>
+                    <include>plugin.yml</include>
+                  </includes>
+                </resource>
+              </resources>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
