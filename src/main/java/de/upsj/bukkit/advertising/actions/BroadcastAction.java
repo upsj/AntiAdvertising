@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.actions;
 
 import de.upsj.bukkit.advertising.Action;
+import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.annotations.ConfigSection;
 import de.upsj.bukkit.annotations.ConfigVar;
@@ -20,7 +21,8 @@ import org.bukkit.configuration.ConfigurationSection;
                    @ConfigVar(name = BroadcastAction.CONF_MESSAGE, type = ConfigVarType.STRING,
                               description = "The message to be broadcasted. "
                                           + "Use %NAME% to insert the player name, &0 - &f for colors.")
-               }
+               },
+               parent = ActionHandler.class
 )
 public class BroadcastAction extends Action {
     /** Config value for the message to be broadcasted. */

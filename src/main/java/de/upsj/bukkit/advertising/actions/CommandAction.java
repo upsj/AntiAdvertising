@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.actions;
 
 import de.upsj.bukkit.advertising.Action;
+import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.annotations.ConfigSection;
 import de.upsj.bukkit.annotations.ConfigVar;
@@ -19,7 +20,8 @@ import org.bukkit.configuration.ConfigurationSection;
                 @ConfigVar(name = CommandAction.CONF_COMMAND, type = ConfigVarType.STRING,
                           description = "The command to be executed. "
                                       + "Use %NAME% to insert the player name.")
-        }
+        },
+        parent = ActionHandler.class
 )
 public class CommandAction extends Action {
     /** Config value for the command to be executed. */

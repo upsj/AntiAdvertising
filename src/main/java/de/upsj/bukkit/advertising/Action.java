@@ -20,8 +20,7 @@ import org.bukkit.configuration.ConfigurationSection;
                               description = "Set this to true to reset the attempt counter for this action "
                                           + "every time this action is performed, false to always perform the action "
                                           + "after its first execution.")
-               },
-               parent = ActionHandler.class
+               }
 )
 public abstract class Action implements Configurable {
     /** Config value of the attempt count. */

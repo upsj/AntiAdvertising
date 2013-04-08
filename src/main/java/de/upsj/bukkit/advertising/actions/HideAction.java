@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.actions;
 
 import de.upsj.bukkit.advertising.Action;
+import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.annotations.ConfigSection;
 
@@ -10,7 +11,8 @@ import de.upsj.bukkit.annotations.ConfigSection;
  * @version 1.0
  */
 @ConfigSection(name = "hide", // keep up-do-date with the Actions enum!
-        description = "Hides server advertisement (drops the messages)."
+        description = "Hides server advertisement (drops the messages).",
+        parent = ActionHandler.class
 )
 public class HideAction extends Action {
     /** Initializes the hide action. */

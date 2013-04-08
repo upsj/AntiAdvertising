@@ -1,5 +1,6 @@
 package de.upsj.bukkit.advertising.actions;
 
+import de.upsj.bukkit.advertising.ActionHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.configuration.ConfigurationSection;
@@ -28,7 +29,8 @@ import de.upsj.bukkit.annotations.ConfigVarType;
                            description = "The output format of the server information. "
                                        + "Use %MOTD% for the server's message of the day, "
                                        + "%PLAYERS% for the current and %MAX% for the maximal player count.")
-         }
+        },
+        parent = ActionHandler.class
 )
 public class NotifyModsAction extends Action {
     /** Config value for the notification message. */

@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.actions;
 
 import de.upsj.bukkit.advertising.Action;
+import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.annotations.ConfigSection;
 
@@ -10,7 +11,8 @@ import de.upsj.bukkit.annotations.ConfigSection;
  * @version 1.0
  */
 @ConfigSection(name = "censor", // keep up-do-date with the Actions enum!
-        description = "Censors server advertisement (replaces it by '*' characters)."
+        description = "Censors server advertisement (replaces it by '*' characters).",
+        parent = ActionHandler.class
 )
 public class CensorAction extends Action {
     /** Initializes the censor action. */

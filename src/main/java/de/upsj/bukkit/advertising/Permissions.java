@@ -13,7 +13,7 @@ public final class Permissions {
     private Permissions() { }
     private static final String PREFIX = "antiad.";
 
-    @Permission("Permission to receive notifications about server advertisement")
+    @Permission("Permission to receive notifications about server advertisement.")
     public static final String NOTIFY = PREFIX + "notify";
 
     @Permission("Permission to send chat messages without being checked.")

@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.actions;
 
 import de.upsj.bukkit.advertising.Action;
+import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.annotations.ConfigSection;
 import de.upsj.bukkit.annotations.ConfigVar;
@@ -20,7 +21,8 @@ import org.bukkit.entity.Player;
         values = {
                 @ConfigVar(name = KickAction.CONF_MESSAGE, type = ConfigVarType.STRING,
                           description = "The kick message. Use &0 - &f for colors.")
-        }
+        },
+        parent = ActionHandler.class
 )
 public class KickAction extends Action {
     /** Config calue for the kick message. */
