@@ -79,9 +79,10 @@ public class ChatListener implements Listener, Configurable {
      * Called when a player chats.
      * @param event The chat event.
      */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    /* Low priority to let anti spam plugins kick in first
-     * as checking for server ad is performance intensive. */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    /* Normal priority to prevent anti spam plugins from assuming that
+     * the resent message and the cancelled message are both sent.
+     * Regex has better performance than I thought ;-) */
     public void onChat(AsyncPlayerChatEvent event) {
         checkMessage(event, event.getPlayer().getName(), event.getMessage());
     }
@@ -90,9 +91,10 @@ public class ChatListener implements Listener, Configurable {
      * Called when a player issues a command.
      * @param event The command event.
      */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    /* Low priority to let anti spam plugins kick in first
-     * as checking for server ad is performance intensive. */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    /* Normal priority to prevent anti spam plugins from assuming that
+     * the resent message and the cancelled message are both sent.
+     * Regex has better performance than I thought ;-) */
     public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
         String message = event.getMessage().toLowerCase();
         for (String command : commands) {
