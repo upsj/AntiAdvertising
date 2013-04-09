@@ -49,7 +49,7 @@ public class KickAction extends Action {
     @Override
     public void reloadConfig(ConfigurationSection config) {
         super.reloadConfig(config);
-        String message = config.getString(CONF_MESSAGE, "You were kicked because of server advertising!");
+        String message = config.getString(CONF_MESSAGE, "You were kicked because of server advertisement!");
         config.set(CONF_MESSAGE, message);
         this.kickMessage = ChatColor.translateAlternateColorCodes('&', message);
     }

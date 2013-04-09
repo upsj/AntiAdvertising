@@ -71,7 +71,7 @@ public class NotifyModsAction extends Action {
     @Override
     public void reloadConfig(ConfigurationSection config) {
         super.reloadConfig(config);
-        String message = config.getString(CONF_MESSAGE, NAME + " adverted to a server:");
+        String message = config.getString(CONF_MESSAGE, NAME + " advertised a server:");
         String format = config.getString(CONF_FORMAT, MOTD + " (" + PLAYERS + "/" + MAXPLAYERS + ")");
         config.set(CONF_MESSAGE, message);
         config.set(CONF_FORMAT, format);

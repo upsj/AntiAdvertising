@@ -122,7 +122,7 @@ public class AntiAdvertisingPlugin extends JavaPlugin {
 
     /** Loads the white list. */
     private void loadWhiteList() {
-        // FIXME possible issue: server adverted short before the whitelist is reloaded.
+        // FIXME possible issue: server advertised short before the whitelist is reloaded.
         List<String> whitelist = getConfig().getStringList(CONF_WHITELIST);
         Iterator<String> it = whitelist.iterator();
         String serverName;

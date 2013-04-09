@@ -12,7 +12,7 @@ public class ChatMessageTest {
         ChatMessage msg = ChatMessage.parse("Player",
                 "Hey! Come and visit my server at " + TestConfig.TEST_SERVER + ":" + port
                 + " " + TestConfig.TEST_NO_SERVER);
-        assertFalse("Obvious advertising not found", msg.getState() == ChatMessage.State.CLEAN);
+        assertFalse("Obvious advertisement not found", msg.getState() == ChatMessage.State.CLEAN);
         assertEquals("Match count", 2, msg.getMatchCount());
         assertEquals("Address 1", TestConfig.TEST_SERVER, msg.getMatch(0).getMatchedAddress());
         assertEquals("Port 1", port, msg.getMatch(0).getPort());
@@ -27,7 +27,7 @@ public class ChatMessageTest {
         ChatMessage msg = ChatMessage.parse("Player",
                 // invalid IP to check bounds
                 "Hey! 256.127.0.12 Come and visit my servers at " + addr + ":" + port + " and " + addr);
-        assertFalse("Obvious advertising not found", msg.getState() == ChatMessage.State.CLEAN);
+        assertFalse("Obvious advertisement not found", msg.getState() == ChatMessage.State.CLEAN);
         assertEquals("Match count", 2, msg.getMatchCount());
         assertEquals("Address equality", msg.getMatch(0).getMatchedAddress(), msg.getMatch(1).getMatchedAddress());
         assertTrue("Address", msg.getMatch(0).getMatchedAddress().contains("127.0.0.1"));
@@ -65,11 +65,11 @@ public class ChatMessageTest {
         for (int i = 0; i < 10000; i++) {
             ChatMessage.parse("Player", "This page google.com is just so 127.0.0.1:4922!");
         }
-        System.out.println("Double advertising: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+        System.out.println("Double advertisement: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
         start = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
             ChatMessage.parse("Player", "Hey! Come and visit my server at " + TestConfig.TEST_SERVER + ":" + TestConfig.DEFAULT_PORT);
         }
-        System.out.println("Single advertising: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+        System.out.println("Single advertisement: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
     }
 }

@@ -6,7 +6,7 @@ import de.upsj.bukkit.annotations.ConfigVarType;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**
- * An action that can be performed after a player adverted another server.
+ * An action that can be performed after a player advertised another server.
  * @author upsj
  * @version 1.0
  */

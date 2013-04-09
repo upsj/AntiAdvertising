@@ -19,7 +19,7 @@ import java.util.Set;
  * @version 1.0
  */
 @ConfigSection(name = AntiAdvertisingPlugin.CONF_ACTIONS,
-               description = "Configuration of the actions performed when a player adverts to a server.",
+               description = "Configuration of the actions performed when a player advertises a server.",
                parent = AntiAdvertisingPlugin.class
 )
 public class ActionHandler implements Runnable, Configurable {

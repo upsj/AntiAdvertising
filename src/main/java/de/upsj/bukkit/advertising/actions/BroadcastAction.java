@@ -47,7 +47,7 @@ public class BroadcastAction extends Action {
     @Override
     public void reloadConfig(ConfigurationSection config) {
         super.reloadConfig(config);
-        String message = config.getString(CONF_MESSAGE, NAME + " was kicked because of server advertising");
+        String message = config.getString(CONF_MESSAGE, NAME + " was kicked because of server advertisement");
         config.set(CONF_MESSAGE, message);
         this.broadcastMessage = ChatColor.translateAlternateColorCodes('&', message);
     }

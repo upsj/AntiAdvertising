@@ -37,7 +37,7 @@ public final class ChatMessage implements Cloneable, ServerRequestListener {
         /**
          * Initializes the state by its properties.
          * @param finished Is the processing finished?
-         * @param ad Does the message contain advertising?
+         * @param ad Does the message contain advertisement?
          */
         private State(boolean finished, boolean ad) {
             this.finished = finished;
