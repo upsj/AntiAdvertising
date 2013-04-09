@@ -67,7 +67,7 @@
         <version>2.4</version>
         <configuration>
           <excludes>
-            <exclude>de/upsj/bukkit/annotations</exclude>
+            <exclude>**/de/upsj/bukkit/annotations/**</exclude>
           </excludes>
         </configuration>
       </plugin>
