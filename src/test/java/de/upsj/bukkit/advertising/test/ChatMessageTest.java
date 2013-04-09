@@ -53,4 +53,23 @@ public class ChatMessageTest {
         msg.censorMatch(1);
         assertEquals(s3, msg.getMessage());
     }
+
+    @Test
+    public void testPerformance() {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            ChatMessage.parse("Player", "just some normal text that shouldn't be suspicious in any way.");
+        }
+        System.out.println ("Normal message: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            ChatMessage.parse("Player", "This page google.com is just so 127.0.0.1:4922!");
+        }
+        System.out.println("Double advertising: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+        start = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            ChatMessage.parse("Player", "Hey! Come and visit my server at " + TestConfig.TEST_SERVER + ":" + TestConfig.DEFAULT_PORT);
+        }
+        System.out.println("Single advertising: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+    }
 }
