@@ -86,7 +86,7 @@ public class ActionHandler implements Runnable, Configurable {
         if (mayIgnore(msg)) {
             Log.debug("Ignoring '" + msg.getMessage() + "' by " + msg.getSender());
         } else {
-            Log.debug("Taking actions because of '" + msg.getMessage() + "' by " + msg.getSender());
+            Log.log("Taking actions because of '" + msg.getMessage() + "' by " + msg.getSender());
             String name = msg.getSender().toLowerCase();
             attempts.increment(name);
             for (Action action : actions) {
