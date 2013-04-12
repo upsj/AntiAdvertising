@@ -221,7 +221,7 @@ public final class ChatMessage implements Cloneable, ServerRequestListener {
             endArray[i] = matchEnds.get(i);
         }
 
-        Log.debug("Parsed suspicious chat message: '" + message + "' by " + playerName);
+        Log.debug("Parsed chat message: '" + message + "' by " + playerName);
         return new ChatMessage(message, playerName, matchArray, startArray, endArray);
     }
 
