@@ -28,6 +28,7 @@ import de.upsj.bukkit.annotations.ConfigVarType;
                 @ConfigVar(name = NotifyModsAction.CONF_FORMAT, type = ConfigVarType.STRING,
                            description = "The output format of the server information. "
                                        + "Use %MOTD% for the server's message of the day, "
+                                       + "%ADDRESS% for the server's address, "
                                        + "%PLAYERS% for the current and %MAX% for the maximal player count.")
         },
         parent = ActionHandler.class
@@ -41,6 +42,7 @@ public class NotifyModsAction extends Action {
     private static final String MOTD = "%MOTD%";
     private static final String PLAYERS = "%PLAYERS%";
     private static final String MAXPLAYERS = "%MAX%";
+    private static final String ADDRESS = "%ADDRESS%";
     private final Server server;
     private String notificationMessage;
     private String serverFormat;
@@ -62,7 +64,8 @@ public class NotifyModsAction extends Action {
                 PingedServer pinged = (PingedServer) match;
                 server.broadcast(serverFormat.replace(MOTD, pinged.getMOTD())
                                              .replace(PLAYERS, String.valueOf(pinged.getPlayers()))
-                                             .replace(MAXPLAYERS, String.valueOf(pinged.getMaxPlayers())),
+                                             .replace(MAXPLAYERS, String.valueOf(pinged.getMaxPlayers())
+                                             .replace(ADDRESS, pinged.getMatchedAddress())),
                         Permissions.NOTIFY);
             }
         }
