@@ -24,7 +24,8 @@ import de.upsj.bukkit.annotations.ConfigVarType;
         values = {
                 @ConfigVar(name = NotifyModsAction.CONF_MESSAGE, type = ConfigVarType.STRING,
                            description = "The notification message to be broadcasted. "
-                                       + "Use %NAME% to insert the player name, &0 - &f for colors."),
+                                       + "Use %NAME% to insert the player name,"
+                                       + "%MSG% for the sent message, &0 - &f for colors."),
                 @ConfigVar(name = NotifyModsAction.CONF_FORMAT, type = ConfigVarType.STRING,
                            description = "The output format of the server information. "
                                        + "Use %MOTD% for the server's message of the day, "
@@ -39,6 +40,7 @@ public class NotifyModsAction extends Action {
     /** Config value for the server format. */
     public static final String CONF_FORMAT = "format";
     private static final String NAME = "%NAME%";
+    private static final String MSG = "%MSG%";
     private static final String MOTD = "%MOTD%";
     private static final String PLAYERS = "%PLAYERS%";
     private static final String MAXPLAYERS = "%MAX%";
@@ -57,7 +59,8 @@ public class NotifyModsAction extends Action {
 
     @Override
     public void doAction(ChatMessage message) {
-        server.broadcast(notificationMessage.replace(NAME, message.getSender()), Permissions.NOTIFY);
+        server.broadcast(notificationMessage.replace(NAME, message.getSender())
+                                            .replace(MSG, message.getMessage()), Permissions.NOTIFY);
         for (int i = 0; i < message.getMatchCount(); i++) {
             PotentialServer match = message.getMatch(i);
             if (match.isServer()) {
