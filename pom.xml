@@ -24,7 +24,7 @@
   <build>
     <defaultGoal>install</defaultGoal>
     <directory>${basedir}/target</directory>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
