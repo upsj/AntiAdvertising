@@ -8,10 +8,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Queue;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Manages currently pending messages and checks if they are clean periodically.
@@ -26,7 +26,7 @@ public class ActionHandler implements Runnable, Configurable {
     /** Attempt counter. */
     private final CountMap<String> attempts;
     /** Messages not completely processed. */
-    private final Set<ChatMessage> pending;
+    private final Queue<ChatMessage> pending;
     /** The actions. */
     private final List<Action> actions;
     /** The server. */
@@ -39,7 +39,7 @@ public class ActionHandler implements Runnable, Configurable {
      * @param server The server.
      */
     public ActionHandler(Server server) {
-        this.pending = new HashSet<ChatMessage>();
+        this.pending = new ConcurrentLinkedQueue<ChatMessage>();
         this.attempts = new CountMap<String>();
         this.actions = new ArrayList<Action>(Actions.values().length);
         this.server = server;
@@ -110,10 +110,7 @@ public class ActionHandler implements Runnable, Configurable {
      */
     private boolean mayIgnore(ChatMessage msg) {
         Player pl = server.getPlayerExact(msg.getSender());
-        if (pl == null) {
-            return false;
-        }
-        return pl.hasPermission(Permissions.IGNORE);
+        return pl != null && pl.hasPermission(Permissions.IGNORE);
     }
 
     /**
