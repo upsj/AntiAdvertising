@@ -17,10 +17,6 @@ public enum Actions {
     broadcast
     { public Action get(Server srv) { return new BroadcastAction(srv); } },
 
-    /** @see CensorAction */
-    censor
-    { public Action get(Server srv) { return new CensorAction(); } },
-
     /** @see HideAction */
     hide
     { public Action get(Server srv) { return new HideAction(); } },
@@ -31,7 +27,11 @@ public enum Actions {
 
     /** @see CommandAction */
     command
-    { public Action get(Server srv) { return new CommandAction(srv); } };
+    { public Action get(Server srv) { return new CommandAction(srv); } },
+
+    /** @see CensorAction */
+    censor
+    { public Action get(Server srv) { return new CensorAction(); } };
 
 
     /**
