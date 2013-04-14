@@ -67,8 +67,8 @@ public class NotifyModsAction extends Action {
                 PingedServer pinged = (PingedServer) match;
                 server.broadcast(serverFormat.replace(MOTD, pinged.getMOTD())
                                              .replace(PLAYERS, String.valueOf(pinged.getPlayers()))
-                                             .replace(MAXPLAYERS, String.valueOf(pinged.getMaxPlayers())
-                                             .replace(ADDRESS, pinged.getMatchedAddress())),
+                                             .replace(MAXPLAYERS, String.valueOf(pinged.getMaxPlayers()))
+                                             .replace(ADDRESS, pinged.getMatchedAddress()),
                         Permissions.NOTIFY);
             }
         }
