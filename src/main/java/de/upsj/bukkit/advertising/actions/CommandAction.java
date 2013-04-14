@@ -19,7 +19,8 @@ import org.bukkit.configuration.ConfigurationSection;
         values = {
                 @ConfigVar(name = CommandAction.CONF_COMMAND, type = ConfigVarType.STRING,
                           description = "The command to be executed. "
-                                      + "Use %NAME% to insert the player name.")
+                                      + "Use %NAME% to insert the player name, "
+                                      + "%MSG% for the sent message.")
         },
         parent = ActionHandler.class
 )
@@ -27,6 +28,7 @@ public class CommandAction extends Action {
     /** Config value for the command to be executed. */
     public static final String CONF_COMMAND = "command";
     private static final String NAME = "%NAME%";
+    private static final String MSG = "%MSG%";
     private final Server server;
     private String command;
 
@@ -40,7 +42,8 @@ public class CommandAction extends Action {
 
     @Override
     public void doAction(ChatMessage message) {
-        server.dispatchCommand(server.getConsoleSender(), command.replace(NAME, message.getSender()));
+        server.dispatchCommand(server.getConsoleSender(), command.replace(NAME, message.getSender())
+                                                                 .replace(MSG, message.getMessage()));
     }
 
     @Override
