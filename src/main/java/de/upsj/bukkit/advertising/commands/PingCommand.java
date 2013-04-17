@@ -54,6 +54,7 @@ public class PingCommand implements CommandExecutor, ServerRequestListener {
         if (strings.length != 1) {
             commandSender.sendMessage(ChatColor.GOLD + "Usage: /" + NAME + " server");
             commandSender.sendMessage(ChatColor.GOLD + " or /" + NAME + " server:port");
+            return true;
         }
 
         PotentialServer match = ChatMessage.parseSingleServer(strings[0], false);
