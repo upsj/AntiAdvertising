@@ -46,7 +46,7 @@ public class ActionHandler implements Runnable, Configurable {
     }
 
     /** Checks pending messages for completion, passing them through. */
-    public synchronized void run() {
+    public void run() {
         Iterator<ChatMessage> it = pending.iterator();
         ChatMessage msg;
         ChatMessage.State state;
@@ -117,7 +117,7 @@ public class ActionHandler implements Runnable, Configurable {
      * Puts a pending message.
      * @param msg The message.
      */
-    public synchronized void putPending(ChatMessage msg) {
+    public void putPending(ChatMessage msg) {
         pending.add(msg);
     }
 
