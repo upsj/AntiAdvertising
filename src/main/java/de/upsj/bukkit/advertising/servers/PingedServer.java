@@ -26,7 +26,7 @@ public class PingedServer extends ResolvedServer {
 
         this.fullResponse = response;
         // new protocol
-        if (response.startsWith("§1")) {
+        if (response.startsWith("§")) {
             String[] parts = response.split("\0");
 
             this.motd = parts.length > 3 ? parts[3] : "INVALID SERVER RESPONSE";

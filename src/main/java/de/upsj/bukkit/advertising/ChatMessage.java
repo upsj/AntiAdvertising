@@ -300,7 +300,7 @@ public final class ChatMessage implements Cloneable, ServerRequestListener {
             match = parseDomain(m.group(), whitelisted);
         }
         if (match == null) {
-            m = DOMAIN.matcher(name);
+            m = IP.matcher(name);
             if (m.find()) {
                 match = ChatMessage.parseIP(m.group(), whitelisted);
             }
