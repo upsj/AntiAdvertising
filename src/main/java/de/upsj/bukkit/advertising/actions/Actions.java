@@ -29,8 +29,12 @@ public enum Actions {
     command
     { public Action get(Server srv) { return new CommandAction(srv); } },
 
+    /** @see LogAction */
+    log
+    { public Action get(Server srv) { return new LogAction(srv); } },
+
     /** @see CensorAction */
-    censor
+    censor // keep it last
     { public Action get(Server srv) { return new CensorAction(); } };
 
 
