@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.test;
 
 import de.upsj.bukkit.advertising.ChatMessage;
+import de.upsj.bukkit.advertising.Log;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -57,6 +58,7 @@ public class ChatMessageTest {
     @Test
     public void testPerformance() {
         long start = System.currentTimeMillis();
+        Log.setDebugMode(false);
         for (int i = 0; i < 10000; i++) {
             ChatMessage.parse("Player", "just some normal text that shouldn't be suspicious in any way.");
         }
@@ -71,5 +73,6 @@ public class ChatMessageTest {
             ChatMessage.parse("Player", "Hey! Come and visit my server at " + TestConfig.TEST_SERVER + ":" + TestConfig.DEFAULT_PORT);
         }
         System.out.println("Single advertisement: " + ((System.currentTimeMillis() - start) / 10000f) + " ms");
+        Log.setDebugMode(true);
     }
 }
