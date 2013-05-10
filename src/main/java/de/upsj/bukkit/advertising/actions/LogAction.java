@@ -5,7 +5,6 @@ import de.upsj.bukkit.advertising.ActionHandler;
 import de.upsj.bukkit.advertising.ChatMessage;
 import de.upsj.bukkit.advertising.servers.PotentialServer;
 import de.upsj.bukkit.annotations.ConfigSection;
-import org.bukkit.Server;
 
 import java.io.IOException;
 import java.util.Date;
@@ -24,23 +23,33 @@ public class LogAction extends Action {
     private final Logger log;
 
     /** Initializes the log action. */
-    public LogAction(Server srv) {
-        // Initialize logger, remove old file handler
+    public LogAction() {
         log = Logger.getLogger("AntiAdvertising");
-        Handler[] handlers = log.getHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            if (handlers[i] instanceof LogHandler) {
-                log.removeHandler(handlers[i]);
-            }
-        }
+    }
 
+    @Override
+    public void onEnable() {
+        onDisable();
+        // Initialize new file handler.
         try {
             Handler newHandler = new LogHandler("advertisement.log", true);
             newHandler.setFormatter(new LogFormatter());
             log.addHandler(newHandler);
         } catch (IOException e) {
             e.printStackTrace();
-            srv.getLogger().warning("[AntiAdvertisement] Creating log file failed");
+            log.warning("[AntiAdvertisement] Creating log file failed");
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        // Remove and close old handler(s)
+        Handler[] handlers = log.getHandlers();
+        for (int i = 0; i < handlers.length; i++) {
+            if (handlers[i] instanceof LogHandler) {
+                handlers[i].close();
+                log.removeHandler(handlers[i]);
+            }
         }
     }
 
