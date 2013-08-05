@@ -155,7 +155,7 @@ public class ResolvedServer extends PotentialServer {
 
         try {
             socket.setSoTimeout(timeout);
-            socket.connect(new InetSocketAddress(address, port), timeout);
+            socket.connect(new InetSocketAddress(ipAddress, port), timeout);
 
             out = socket.getOutputStream();
             in = new DataInputStream(socket.getInputStream());

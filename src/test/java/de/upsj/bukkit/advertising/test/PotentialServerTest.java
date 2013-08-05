@@ -35,6 +35,8 @@ public class PotentialServerTest {
         PotentialServer server = new PotentialServer(TestConfig.TEST_SRV_DOMAIN);
         server = server.call();
         assertTrue("server is null", server != null);
+        server = server.call();
+        assertTrue(TestConfig.TEST_SRV_DOMAIN + " not considered minecraft server", server.isServer());
         System.out.println(server);
     }
 }
