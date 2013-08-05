@@ -122,7 +122,6 @@ public class PotentialServer implements Callable<PotentialServer> {
      * equal the other server's name and port.
      */
     public boolean equalsByName(PotentialServer other) {
-        return address.equalsIgnoreCase(other.address)
-            && port == other.port;
+        return address.equalsIgnoreCase(other.address);
     }
 }
