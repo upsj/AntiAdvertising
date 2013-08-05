@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Plugin(name = "AntiAdvertising",
         description = "Kicking server advertisers",
-        version = "2.1.5", author = "upsj")
+        version = "2.1.6", author = "upsj")
 @ConfigSection(name = "",
                description = "AntiAdvertising configuration",
                values = {
