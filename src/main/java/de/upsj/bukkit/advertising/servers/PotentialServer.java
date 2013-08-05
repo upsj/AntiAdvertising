@@ -1,6 +1,7 @@
 package de.upsj.bukkit.advertising.servers;
 
 import de.upsj.bukkit.advertising.Log;
+import de.upsj.bukkit.advertising.util.SRVRecord;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,7 +20,7 @@ public class PotentialServer implements Callable<PotentialServer> {
     /** The matched server domain name. */
     protected final String address;
     /** The server port. */
-    protected final int port;
+    protected int port;
     /** Is the server whitelisted? */
     protected final boolean whitelisted;
 
@@ -105,7 +106,11 @@ public class PotentialServer implements Callable<PotentialServer> {
     public PotentialServer call() {
         PotentialServer result;
         try {
-            InetAddress ip = InetAddress.getByName(address);
+            SRVRecord record = new SRVRecord(address, port, "minecraft");
+            // only use domain from SRV record internally - equality checks would fail otherwise
+            // The port can be changed, as it isn't included in this check.
+            this.port = record.getPort();
+            InetAddress ip = InetAddress.getByName(record.getDomain());
             result = new ResolvedServer(this, ip);
             Log.debug("Resolved " + this + ": " + result);
         } catch (UnknownHostException e) {

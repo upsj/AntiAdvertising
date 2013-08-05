@@ -29,4 +29,12 @@ public class PotentialServerTest {
         assertTrue(TestConfig.TEST_SERVER + " not considered minecraft server", server2.isServer());
         System.out.println(server2);
     }
+
+    @Test(timeout=5000)
+    public void testSRV() {
+        PotentialServer server = new PotentialServer(TestConfig.TEST_SRV_DOMAIN);
+        server = server.call();
+        assertTrue("server is null", server != null);
+        System.out.println(server);
+    }
 }
