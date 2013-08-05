@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * AntiAdvertising plugin implementation.
@@ -60,7 +61,7 @@ public class AntiAdvertisingPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Log.init(getLogger(), isDebugMode());
+        Log.init(logger(), isDebugMode());
         serverChecker = new ServerChecker();
         handler = new ActionHandler(getServer());
         listener = new ChatListener(serverChecker, handler);
@@ -146,5 +147,10 @@ public class AntiAdvertisingPlugin extends JavaPlugin {
         serverChecker.shutdown();
         serverChecker = null;
         getServer().getScheduler().cancelTasks(this);
+    }
+
+    /** Returns the logger for the plugin. Used because getLogger is final now. */
+    protected Logger logger() {
+        return getLogger();
     }
 }

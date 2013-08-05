@@ -13,7 +13,7 @@ public class ConfigGenerationTest {
         final YamlConfiguration config = new YamlConfiguration();
         AntiAdvertisingPlugin plugin = new AntiAdvertisingPlugin() {
             @Override
-            public Logger getLogger() {
+            protected Logger logger() {
                 return Logger.getAnonymousLogger();
             }
 
