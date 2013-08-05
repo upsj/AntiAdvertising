@@ -142,6 +142,7 @@ public class AntiAdvertisingPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        handler.onDisable();
         serverChecker.shutdown();
         serverChecker = null;
         getServer().getScheduler().cancelTasks(this);

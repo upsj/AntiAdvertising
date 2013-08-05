@@ -40,6 +40,16 @@ public abstract class Action implements Configurable {
     public abstract void doAction(ChatMessage message);
 
     /**
+     * Called when the action is enabled.
+     */
+    public void onEnable() { }
+
+    /**
+     * Called when the action is disabled.
+     */
+    public void onDisable() { }
+
+    /**
      * Returns whether the message may be shown.
      * @return True if the message may be shown.
      */
@@ -47,12 +57,16 @@ public abstract class Action implements Configurable {
         return true;
     }
 
+    public boolean isEnabled() {
+        return attemptCount > 0;
+    }
+
     /**
      * @param attempt The current attempt count.
      * @return True iff the action should be taken.
      */
     public boolean shouldUse(int attempt) {
-        if (attemptCount == 0) {
+        if (!isEnabled()) {
             return false;
         }
         if (once) {

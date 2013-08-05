@@ -31,7 +31,7 @@ public enum Actions {
 
     /** @see LogAction */
     log
-    { public Action get(Server srv) { return new LogAction(srv); } },
+    { public Action get(Server srv) { return new LogAction(); } },
 
     /** @see CensorAction */
     censor // keep it last

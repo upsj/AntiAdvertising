@@ -123,13 +123,26 @@ public class ActionHandler implements Runnable, Configurable {
 
     @Override
     public void reloadConfig(ConfigurationSection config) {
-        actions.clear();
+        onDisable();
         Action action;
         for (Actions a : Actions.values()) {
             action = a.get(server);
             action.reloadConfig(getSection(config, a.name()));
+            if (action.isEnabled()) {
+                action.onEnable();
+            }
             actions.add(action);
         }
+    }
+
+    /** Called when the handler is disabled / cleanup method for the actions. */
+    public void onDisable() {
+        for (Action a : actions) {
+            if (a.isEnabled()) {
+                a.onDisable();
+            }
+        }
+        actions.clear();
     }
 
     /**
