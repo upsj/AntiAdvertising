@@ -3,6 +3,7 @@ package de.upsj.bukkit.advertising.util;
 import de.upsj.bukkit.advertising.Log;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -28,8 +29,12 @@ public class SRVRecord {
         String[] parts = new String[0];
         try {
             Attributes a = srvContext.getAttributes("_" + type + "._tcp." + domain, new String[]{"SRV"});
-            String msg = a.get("srv").get(0).toString();
-            parts = msg.split(" ");
+            Attribute attr;
+            Object obj;
+            if (a != null && (attr = a.get("srv")) != null && (obj = attr.get(0)) != null) {
+                String msg = obj.toString();
+                parts = msg.split(" ");
+            }
         } catch (NamingException e) {
             Log.debug("SRV request for " + domain + " failed because of " + e.getClass().getSimpleName());
         }
